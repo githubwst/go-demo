@@ -10,7 +10,7 @@ require (
 	github.com/TruthHun/html2md v0.0.0-20190507142218-8352cc68f88e
 	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/alibaba/sentinel-golang v0.3.0
-	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190827030439-84d9962c10d3
+	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1333
 	github.com/aliyun/aliyun-oss-go-sdk v2.0.1+incompatible
 	github.com/andybalholm/cascadia v1.2.0 // indirect
 	github.com/antchfx/htmlquery v1.2.3 // indirect
