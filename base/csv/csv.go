@@ -8,9 +8,9 @@ import (
 
 func writeCsv(file *os.File) {
 	w := csv.NewWriter(file)
-	w.Write([]string{"123", "456", "789", "666"})
+	_ = w.Write([]string{"123", "456", "789", "999"})
 	w.Flush()
-	file.Close()
+	_ = file.Close()
 }
 
 func readCsv(file *os.File) {

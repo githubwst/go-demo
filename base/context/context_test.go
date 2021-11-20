@@ -17,6 +17,10 @@ func TestContextWithCancel(t *testing.T) {
 		return
 	}
 }
+func TestContextWithCancel1(t *testing.T) {
+	//contextWithCancel()
+	contextWithDeadLine(time.Now().Add(1500 * time.Millisecond))
+}
 
 func TestContextWithValue1(t *testing.T) {
 	kv := make(map[string]interface{})
@@ -37,9 +41,12 @@ func TestContextWithDeadLine(t *testing.T) {
 	}
 }
 
+// Internally, context.WithTimeout calls the
+// context.WithDeadline function and generates
+// the deadline by adding timeout to the current time.
 func TestContextWithTimeout(t *testing.T) {
 	ctx := context.Background()
-	ctx, _ = context.WithTimeout(ctx, time.Second*3)
+	ctx, _ = context.WithTimeout(ctx, time.Second*3) // = WithDeadline(parent, time.Now().Add(time.Second*3))
 	select {
 	case <-ctx.Done():
 		fmt.Println("已超时,结束执行")

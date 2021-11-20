@@ -21,7 +21,7 @@ func doSomething() {
 // 统计某函数的运行时间
 func countTime(msg string) func() {
 	start := time.Now()
-	fmt.Printf("run func: %s", msg)
+	fmt.Printf("run func: %s\n", msg)
 	return func() {
 		fmt.Printf("func name: %s run time: %f s \n", msg, time.Since(start).Seconds())
 	}

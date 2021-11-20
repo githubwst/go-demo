@@ -24,6 +24,7 @@ func contextWithCancel() {
 				i := rand.Intn(1000)
 				select {
 				case <-ctx.Done():
+					fmt.Println("ctx done")
 					return
 				case <-time.After(time.Microsecond * time.Duration(i)):
 					fmt.Println("模拟耗时操作...")
@@ -53,14 +54,14 @@ func contextWithValue(kv map[string]interface{}) {
 }
 
 func printKey(ctx context.Context, key string) {
-	time.Sleep(time.Microsecond * 2)
-	fmt.Println(ctx.Value(key))
+	time.Sleep(time.Second * 1)
+	fmt.Println(key, " ", ctx.Value(key))
 }
 
 // 当到达某一时刻，取消执行
 func contextWithDeadLine(deadLine time.Time) {
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, "name", "time dead line")
+	ctx = context.WithValue(ctx, "name", "execute done within 1s")
 	ctx, cancel := context.WithDeadline(ctx, deadLine)
 	defer cancel()
 	select {

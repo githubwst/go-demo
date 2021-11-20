@@ -19,8 +19,8 @@ func main() {
 				cond.Wait()
 			}
 			// 消费
-			condition--
 			fmt.Printf("Consumer: %d\n", condition)
+			condition--
 
 			// 唤醒一个生产者
 			cond.Signal()

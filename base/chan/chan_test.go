@@ -1,29 +1,53 @@
 package chanx_test
 
 import (
+	"fmt"
 	chanx "go-demo/base/chan"
 	"math/rand"
 	"testing"
 	"time"
 )
 
+func TestChanRDWR(t *testing.T) {
+	ch := make(chan interface{}, 2)
+	go func() {
+		fmt.Println("go routing access")
+		select {
+		// 当ch关闭或者有值传入时执行，否则始终阻塞
+		case <-ch:
+			fmt.Println("receive.")
+		}
+		fmt.Println("done")
+	}()
+	//ch <- "test"
+	time.Sleep(3 * time.Second)
+
+	close(ch)
+	time.Sleep(3 * time.Second)
+
+	// 结束后再写入会报错，但读取不会
+	//ch <- 1
+
+	for c := range ch {
+		fmt.Printf("%T", c)
+	}
+}
+
 func TestChanOrOne(t *testing.T) {
 	ch1 := make(chan interface{})
 	ch2 := make(chan interface{})
 
-	go func() {
-		time.AfterFunc(100*time.Millisecond, func() {
-			ch1 <- 1
-		})
-	}()
+	// 异步定时执行 函数func
+	time.AfterFunc(3*time.Second, func() {
+		ch1 <- 1
+	})
 
-	go func() {
-		time.AfterFunc(200*time.Millisecond, func() {
-			ch2 <- 2
-		})
-	}()
-
-	<-chanx.Or(ch1, ch2)
+	time.AfterFunc(4*time.Second, func() {
+		ch2 <- 2
+	})
+	t.Log("access")
+	//<-chanx.Or(ch1, ch2)
+	<-chanx.OrBySelect(ch1, ch2)
 	t.Log("收到了信号,开始执行业务逻辑")
 }
 
@@ -31,6 +55,7 @@ func TestFanIn(t *testing.T) {
 	ch1 := make(chan interface{})
 	ch2 := make(chan interface{})
 
+	// 异步写ch1、ch2, 奇数->ch1、偶数->ch2
 	go func() {
 		for i := 0; i < 100; i++ {
 			if i%2 != 0 {
@@ -39,20 +64,24 @@ func TestFanIn(t *testing.T) {
 				ch2 <- i
 			}
 		}
+		close(ch1)
+		close(ch2)
 	}()
 
-	out := chanx.FanIn(ch1, ch2)
+	//out := chanx.FanIn(ch1, ch2)
+	out := chanx.FanInByReflect(ch1, ch2)
 
 	go func() {
-		for {
-			select {
-			case i := <-out:
-				t.Log("out: ", i)
-			}
+		count := 0
+		for i := range out {
+			t.Log("out: ", i)
+			count++
 		}
+		// out close之后会执行到这里
+		t.Logf("out 共接收到%v个数", count)
 	}()
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 }
 
 func TestFanInByReflect(t *testing.T) {
@@ -67,12 +96,25 @@ func TestFanInByReflect(t *testing.T) {
 				ch2 <- i
 			}
 		}
+		close(ch1)
+		close(ch2)
 	}()
 
+	out := chanx.FanInByReflect(ch1, ch2)
 	go func() {
+		count := 0
+		defer func() {
+			t.Logf("out 共接收到%v个数", count)
+		}()
+	loop:
 		for {
 			select {
-			case i := <-chanx.FanInByReflect(ch1, ch2):
+			// out close之后不会panic， 而是读到nil
+			case i := <-out:
+				if i == nil {
+					break loop
+				}
+				count++
 				t.Log("out: ", i)
 			}
 		}
@@ -152,7 +194,7 @@ func TestFanOutRandom(t *testing.T) {
 		make(chan interface{}, 10),
 		make(chan interface{}, 10),
 	}
-	rand.Seed(time.Now().UnixNano())
+	//rand.Seed(time.Now().UnixNano())
 
 	// 将ch1收到值，扇出到chan中任意一个
 	chanx.FanOutRandom(ch1, chs)
@@ -170,6 +212,7 @@ func TestFanOutRandom(t *testing.T) {
 	go func() {
 		for {
 			for i, c := range chs {
+				// v, ok 会立即返回，不会阻塞
 				if v, ok := <-c; ok {
 					t.Log("i:", i, "v:", v)
 				}
@@ -177,17 +220,18 @@ func TestFanOutRandom(t *testing.T) {
 		}
 	}()
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(3 * time.Second)
 }
 
 func TestFanOutRandomByReflect(t *testing.T) {
 	ch1 := make(chan interface{})
 	chs := []chan interface{}{
-		make(chan interface{}),
-		make(chan interface{}),
-		make(chan interface{}),
+		make(chan interface{}, 10),
+		make(chan interface{}, 10),
+		make(chan interface{}, 10),
 	}
-	// 将ch1收到值，扇出到chan中任意一个
+	//rand.Seed(time.Now().UnixNano())
+	// 将ch1收到值，扇出到chan中任意一个 //实测并不是任一，而是顺序
 	chanx.FanOutRandomByReflect(ch1, chs)
 
 	go func() {
@@ -210,5 +254,5 @@ func TestFanOutRandomByReflect(t *testing.T) {
 		}
 	}()
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(2 * time.Second)
 }
