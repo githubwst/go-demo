@@ -16,6 +16,6 @@ func DeepCopy(src, dst interface{}) error {
 }
 
 // 基于反射的深度拷贝
-func Copy(src, dst interface{}) error {
+func Copy(dst, src interface{}) error {
 	return copier.Copy(dst, src)
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func TestGenQRCode(t *testing.T) {
-	bytes, err := GenDefaultQRCode("Hello World")
+	bytes, err := GenDefaultQRCode("我爱崔璐瑶 yyds")
 	if err != nil {
 		t.Error(err)
 	}

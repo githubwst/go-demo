@@ -23,8 +23,8 @@ func TestHystrix(t *testing.T) {
 	}
 }
 
-func GetInfo(i int) {
-	hystrix.Go("test", func() error {
+func GetInfo(i int) chan error {
+	return hystrix.Go("test", func() error {
 		// 业务逻辑部分
 		fmt.Println("处理业务逻辑...")
 		if i%2 == 0 {
