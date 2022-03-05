@@ -8,8 +8,10 @@ import (
 
 // 通过 go:embed 文件名，可以将该文件内容读入到变量bs中
 //go:embed test.txt
+var m string
 var bs []byte
 
 func TestEmbed(t *testing.T) {
-	fmt.Println(string(bs))
+	//fmt.Println(string(bs))
+	fmt.Println(m)
 }

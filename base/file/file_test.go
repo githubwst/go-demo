@@ -44,5 +44,5 @@ func TestDeleteFile(t *testing.T) {
 }
 
 func TestFileAbs(t *testing.T) {
-	t.Log(FileAbs("file"))
+	t.Log(FileAbs("."))
 }

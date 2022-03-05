@@ -38,7 +38,7 @@ func AppendToFile(fileName, data string) {
 	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_APPEND, os.ModePerm)
 	defer file.Close()
 	check(err)
-	file.Write([]byte("data"))
+	file.Write([]byte(data))
 }
 
 // 创建文件并返回文件指针

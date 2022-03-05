@@ -12,6 +12,9 @@ type TestStruct struct {
 	A int    `json:"a"`
 	B string `json:"b"`
 	c string `json:"c"`
+	D *int   `json:"d"`
+
+	Func func(int) error
 }
 
 // 通过反射修改非导出字段
@@ -26,6 +29,42 @@ func TestChangeNotExportFiled(t *testing.T) {
 	rv.Set(fv)
 
 	t.Logf("%+v", r)
+}
+
+// 通过反射设置字段值
+func TestChangeNotExportField2(t1 *testing.T) {
+	var t TestStruct
+	v := reflect.ValueOf(&t)
+
+	fv := reflect.ValueOf(&t.A)
+	fv.Elem().Set(reflect.ValueOf(123))
+	t1.Logf("%+v", t)
+
+	exportedFieldValue := v.Elem().Field(1)
+	if !exportedFieldValue.CanSet() {
+		t1.Log("can't set un export field")
+	} else {
+		exportedFieldValue.Set(reflect.ValueOf("456"))
+		t1.Logf("%+v", t)
+	}
+
+	notExportFieldValue := v.Elem().Field(2)
+	if !notExportFieldValue.CanSet() {
+		t1.Log("can't set un export field")
+	} else {
+		notExportFieldValue.Set(reflect.ValueOf("123"))
+		t1.Logf("%+v", t)
+	}
+
+	exportedPointField := v.Elem().Field(3)
+	if !exportedPointField.CanSet() {
+		t1.Log("can't set un export field")
+	} else {
+		num := 123
+		exportedPointField.Set(reflect.ValueOf(&num))
+		t1.Logf("%+v", t)
+	}
+
 }
 
 // 根据反射判断字段类型
@@ -65,27 +104,31 @@ func TestReflect(t *testing.T) {
 
 	// 修改值
 	// 判断是否可以修改
-	canSet := v.CanSet()
+	canSet := v.CanSet() // 不可以直接修改
 	t.Log("can set:", canSet)
 
 	// 如果想修改其值，必须传递的是指针
 	v = reflect.ValueOf(&str)
 	v = v.Elem()
-	v.SetString("new world") // 不可以直接修改
-
+	v.SetString("new world")
 	t.Log("value:", v)
 
 	// 通过反射修改结构体
-	test := TestStruct{A: 23, B: "hello world"}
+	num := 123
+	test := TestStruct{A: 23, B: "hello world", c: "world2", D: &num}
 	s := reflect.ValueOf(&test).Elem()
-	typeOfT := s.Type()
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		t.Logf("%s: Type ==>%s Value==> %v \n", typeOfT.Field(i).Name, f.Type(), f.Interface())
-	}
+
 	s.Field(0).SetInt(77)
 	s.Field(1).SetString("new world")
 	t.Logf("%+v", test)
+
+	typeOfT := reflect.TypeOf(test)
+	for i := 0; i < typeOfT.NumField(); i++ {
+		f := s.Field(i)
+		// 无法获取未导出的字段的值
+		t.Logf("%s: Type ==>%s Value==> %v \n", typeOfT.Field(i).Name, typeOfT.Field(i).Type, f.Interface())
+	}
+
 }
 
 // 获取tag
@@ -94,7 +137,7 @@ func TestGetTag(t *testing.T) {
 	rt := reflect.TypeOf(s)
 	for i := 0; i < rt.NumField(); i++ {
 		f := rt.Field(i)
-		fmt.Println(f.Tag.Get("json"))
+		t.Logf("%s: Tag: %v, Type: %v, Kind: %v\n", f.Name, f.Tag.Get("json"), f.Type, f.Type.Kind())
 	}
 }
 
@@ -111,7 +154,7 @@ func TestChan(t *testing.T) {
 		chosen, recv, ok := reflect.Select(cases)
 		// 是否是接收
 		if recv.IsValid() && ok {
-			t.Log("recv:", recv)
+			t.Logf("chosen: %v, recv:%v\n", chosen, recv)
 		} else {
 			t.Log("send:", cases[chosen].Send)
 		}
