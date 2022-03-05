@@ -6,8 +6,7 @@ import (
 )
 
 func Test_Address(t *testing.T) {
-
 	ip := GetInternetIP()
 	address, _ := address.GetAddressByIP(ip)
-	t.Logf("%+v", address)
+	t.Logf("ip: %v, address: %+v", ip, address)
 }

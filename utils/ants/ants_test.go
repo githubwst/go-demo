@@ -63,18 +63,19 @@ func TestPoolWithFunc(t *testing.T) {
 
 func TestWithOptions(t *testing.T) {
 
-	p, _ := ants.NewPool(3, ants.WithExpiryDuration(time.Second*1))
+	p, _ := ants.NewPool(1, ants.WithExpiryDuration(time.Second*1))
+	// release 内部实现会等待所有worker结束
 	defer p.Release()
 
 	for i := 0; i < 10; i++ {
+		i := i
 		err := p.Submit(func() {
 			fmt.Printf("执行方法....... %d \n ", i)
-			time.Sleep(1 * time.Second) // 模拟耗时操作
+			time.Sleep(2 * time.Second) // 模拟耗时操作
 			fmt.Println("Hello With Options")
 		})
 		if err != nil {
 			fmt.Println(err.Error())
 		}
 	}
-	time.Sleep(5 * time.Second)
 }

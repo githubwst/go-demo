@@ -1,12 +1,41 @@
 package chanx_test
 
 import (
+	"bufio"
 	"fmt"
 	chanx "go-demo/base/chan"
 	"math/rand"
+	"os"
 	"testing"
 	"time"
 )
+
+func TestInputChan(t *testing.T) {
+	ch := make(chan string)
+	defer close(ch)
+
+	scanner := bufio.NewScanner(os.Stdin)
+
+	printInput := func(ch chan string) {
+		for value := range ch {
+			if value == "eof" {
+				break
+			}
+			t.Logf("input is %v", value)
+		}
+	}
+
+	go printInput(ch)
+
+	for scanner.Scan() {
+		text := scanner.Text()
+		ch <- text
+		if text == "eof" {
+			t.Log("End the Game!")
+			break
+		}
+	}
+}
 
 func TestChanRDWR(t *testing.T) {
 	ch := make(chan interface{}, 2)
@@ -19,17 +48,19 @@ func TestChanRDWR(t *testing.T) {
 		}
 		fmt.Println("done")
 	}()
-	//ch <- "test"
-	time.Sleep(3 * time.Second)
+	ch <- "test"
+	time.Sleep(2 * time.Second)
 
+	ch <- 1
+	ch <- 2
+	// 超出缓存容量 则会阻塞，导致死锁
+	//ch <- 3
 	close(ch)
-	time.Sleep(3 * time.Second)
-
-	// 结束后再写入会报错，但读取不会
-	//ch <- 1
+	// 结束后再写入会报错，但依然可以读取所有缓存数据
+	//ch <- 4
 
 	for c := range ch {
-		fmt.Printf("%T", c)
+		fmt.Printf("%v\n", c)
 	}
 }
 
