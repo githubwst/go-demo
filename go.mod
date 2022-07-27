@@ -109,7 +109,7 @@ require (
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.24.0 // indirect
-	gopkg.in/Knetic/govaluate.v3 v3.0.0 // indirect
+	gopkg.in/Knetic/govaluate.v3 v3.0.0
 	gopkg.in/go-oauth2/redis.v3 v3.2.1
 	gopkg.in/go-playground/pool.v3 v3.1.1
 	gopkg.in/oauth2.v3 v3.12.0
