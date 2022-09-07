@@ -10,6 +10,7 @@ func TestLRU(t *testing.T) {
 	for i := 1; i < 15; i++ {
 		l.Put(i, fmt.Sprintf("第%d个", i))
 	}
+	t.Logf("%+v\n", l)
 	for _, key := range l.Keys() {
 		fmt.Println(key)
 	}

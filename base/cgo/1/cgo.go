@@ -9,7 +9,7 @@ package main
 #define REPEAT_LIMIT 3
 
 // 自定义结构体
-typedef struct{
+typedef data_struct{
     int repeat_time;
     char* str;
 }blob;

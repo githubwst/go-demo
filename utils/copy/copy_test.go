@@ -179,6 +179,6 @@ func TestAssignableType(t *testing.T) {
 
 func checkType2WithType4(t2 TypeStruct2, t4 TypeStruct4, t *testing.T, testCase string) {
 	if t2.Field1 != t4.field1 || t2.Field2 != t4.Field2 {
-		t.Errorf("%v: type struct 4 and type struct 2 is not equal", testCase)
+		t.Errorf("%v: type data_struct 4 and type data_struct 2 is not equal", testCase)
 	}
 }
